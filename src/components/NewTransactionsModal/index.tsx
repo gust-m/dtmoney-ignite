@@ -1,5 +1,9 @@
+import { useCallback, useState, FormEvent, useContext } from 'react';
 import Modal from 'react-modal';
-import { useCallback, useState } from 'react';
+
+import { useModal } from '../../hooks/useModal';
+import { useTransactions } from '../../hooks/useTransactions';
+
 import {
   Container,
   Input,
@@ -12,34 +16,79 @@ import incomeImg from '../../assets/income.svg';
 import outcomeImg from '../../assets/outcome.svg';
 import closeIcon from '../../assets/close.svg';
 
-interface ModalProps {
-  onRequestClose: () => void;
-  isOpen: boolean;
-}
+export const NewTransactionModal = () => {
+  const [transactionType, setTransactionsType] = useState('deposit');
+  const [title, setTitle] = useState('');
+  const [value, setValue] = useState(0);
+  const [category, setCategory] = useState('');
 
-export const NewTransactionModal = ({ onRequestClose, isOpen }: ModalProps) => {
-  const [depositType, setDepositType] = useState('deposit');
+  const { isNewTransactionModalOpen, handleCloseNewTransactionModal } =
+    useModal();
+
+  const { addTransaction, transactions } = useTransactions();
 
   const handleSelectIncome = useCallback(() => {
-    setDepositType('deposit');
+    setTransactionsType('deposit');
   }, []);
 
   const handleSelectOutcome = useCallback(() => {
-    setDepositType('withdraw');
+    setTransactionsType('withdraw');
   }, []);
+
+  const handleSubmitForm = useCallback(
+    async (event: FormEvent) => {
+      event.preventDefault();
+
+      const transaction = {
+        title,
+        value,
+        category,
+        transactionType,
+        id: Math.floor(
+          Math.random() * (99 - transactions.length) + transactions.length,
+        ),
+        createdAt: new Date(),
+      };
+
+      await addTransaction(transaction);
+      handleCloseNewTransactionModal();
+      setTitle('');
+      setValue(0);
+      setCategory('');
+      setTransactionsType('deposit');
+    },
+    [
+      addTransaction,
+      category,
+      handleCloseNewTransactionModal,
+      title,
+      transactionType,
+      transactions.length,
+      value,
+    ],
+  );
 
   return (
     <Modal
-      isOpen={isOpen}
-      onRequestClose={onRequestClose}
+      isOpen={isNewTransactionModalOpen}
+      onRequestClose={handleCloseNewTransactionModal}
       overlayClassName="react_modal_overlay"
       className="react_content"
     >
-      <Container>
+      <Container onSubmit={event => handleSubmitForm(event)}>
         <h1>Cadastrar transação</h1>
-        <Input placeholder="Título" />
-        <Input placeholder="Valor" type="number" />
-        <TransactionTypeContainer depositType={depositType}>
+        <Input
+          placeholder="Título"
+          onChange={event => setTitle(event.target.value)}
+          value={title}
+        />
+        <Input
+          placeholder="Valor"
+          type="number"
+          onChange={event => setValue(Number(event.target.value))}
+          value={value}
+        />
+        <TransactionTypeContainer transactionsType={transactionType}>
           <Button type="button" onClick={handleSelectIncome}>
             <img src={incomeImg} alt="Entrada" />
             <p>Entrada</p>
@@ -49,9 +98,13 @@ export const NewTransactionModal = ({ onRequestClose, isOpen }: ModalProps) => {
             <p>Saída</p>
           </Button>
         </TransactionTypeContainer>
-        <Input placeholder="Categoria" />
+        <Input
+          placeholder="Categoria"
+          onChange={event => setCategory(event.target.value)}
+          value={category}
+        />
         <RegisterButton>Cadastrar</RegisterButton>
-        <button type="button" onClick={onRequestClose}>
+        <button type="button" onClick={handleCloseNewTransactionModal}>
           <img src={closeIcon} alt="Fechar modal" />
         </button>
       </Container>

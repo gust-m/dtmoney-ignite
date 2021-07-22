@@ -18,6 +18,11 @@ export const Container = styled.div`
       justify-content: space-between;
     }
 
+    &:last-child {
+      background: var(--green);
+      color: #fff;
+    }
+
     strong {
       display: block;
       margin-top: 1rem;

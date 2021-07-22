@@ -1,8 +1,8 @@
 import styled, { css } from 'styled-components';
-import { darken } from 'polished';
+import { darken, transparentize } from 'polished';
 
 interface ButtonProps {
-  depositType: string;
+  transactionsType: string;
 }
 
 export const Container = styled.form`
@@ -112,16 +112,16 @@ export const TransactionTypeContainer = styled.div<ButtonProps>`
   gap: 8px;
 
   ${props =>
-    props.depositType === 'deposit'
+    props.transactionsType === 'deposit'
       ? css`
           ${Button}:first-child {
-            background: rgba(18, 164, 84, 0.2);
+            background: ${transparentize(0.85, '#12A454')};
             border-color: ${darken(0.1, '#d7d7d7')};
           }
         `
       : css`
           ${Button}:last-child {
-              background: rgba(230, 46, 77, 0.2);
+              background: ${transparentize(0.85, '#E62E4D')};
               border-color: ${darken(0.1, '#d7d7d7')};
           `}
 `;

@@ -26,7 +26,7 @@ export const Container = styled.div`
         color: var(--text-title);
       }
 
-      &.income {
+      &.deposit {
         color: var(--green);
       }
 
